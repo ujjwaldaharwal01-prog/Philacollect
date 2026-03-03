@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StampCollector — India's #1 Philately Community</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ===== VARIABLES ===== */
+:root{
+  --navy:#1b5e20;
+  --navy2:#2e7d32;
+  --blue:#388e3c;
+  --blue2:#43a047;
+  --gold:#f57f17;
+  --gold2:#f9a825;
+  --amber:#fdd835;
+  --cream:#fffde7;
+  --parch:#f9fbe7;
+  --teal:#388e3c;
+  --teal2:#43a047;
+  --red:#dc2626;
+  --green:#059669;
+  --white:#ffffff;
+  --text:#1b2b1c;
+  --muted:#5d7a5e;
+  --sh1:0 4px 20px rgba(0,0,0,0.10);
+  --sh2:0 12px 40px rgba(0,0,0,0.16);
+  --sh3:0 24px 60px rgba(0,0,0,0.24);
+  --border:rgba(0,0,0,0.07);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',sans-serif;background:#fffde7;color:#1b2b1c;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:#f9fbe7}
+::-webkit-scrollbar-thumb{background:#388e3c;border-radius:3px}
+
+/* ===== HERO BG — world map parchment with deep blue overlay ===== */
+.hero-section{
+  position:relative;
+  min-height:100vh;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 0%, rgba(27,94,32,0.96) 0%, rgba(15,50,20,0.99) 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500' viewBox='0 0 800 500'%3E%3Crect fill='%230a1628' width='800' height='500'/%3E%3Ccircle cx='400' cy='250' r='180' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='1'/%3E%3Ccircle cx='400' cy='250' r='120' fill='none' stroke='rgba(255,255,255,0.03)' stroke-width='1'/%3E%3Cline x1='0' y1='250' x2='800' y2='250' stroke='rgba(255,255,255,0.03)' stroke-width='1'/%3E%3Cline x1='400' y1='0' x2='400' y2='500' stroke='rgba(255,255,255,0.03)' stroke-width='1'/%3E%3C/svg%3E");
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  padding-top:68px;
+}
+
+/* animated grid lines on hero */
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size:60px 60px;
+  animation:gridMove 20s linear infinite;
+}
+@keyframes gridMove{from{background-position:0 0}to{background-position:60px 60px}}
+
+.hero-glow1{
+  position:absolute;width:600px;height:600px;
+  background:radial-gradient(circle, rgba(56,142,60,0.3) 0%, transparent 70%);
+  top:-100px;left:-100px;animation:glowPulse 4s ease-in-out infinite;
+}
+.hero-glow2{
+  position:absolute;width:500px;height:500px;
+  background:radial-gradient(circle, rgba(253,216,53,0.18) 0%, transparent 70%);
+  bottom:-50px;right:-50px;animation:glowPulse 4s ease-in-out infinite 2s;
+}
+@keyframes glowPulse{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
+
+/* floating stamp decorations in hero */
+.hero-stamp-deco{
+  position:absolute;right:5%;top:15%;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  opacity:0.9;transform:rotate(-5deg) perspective(800px) rotateY(-15deg);
+  animation:stampFloat 6s ease-in-out infinite;
+}
+@keyframes stampFloat{0%,100%{transform:rotate(-5deg) perspective(800px) rotateY(-15deg) translateY(0)}50%{transform:rotate(-5deg) perspective(800px) rotateY(-15deg) translateY(-12px)}}
+
+.deco-stamp{
+  width:80px;background:#fff;border-radius:4px;
+  padding:6px;box-shadow:0 8px 24px rgba(0,0,0,0.4);
+  cursor:pointer;transition:transform 0.2s;
+  border:2px solid rgba(255,255,255,0.3);
+}
+.deco-stamp:hover{transform:scale(1.1) translateY(-4px)}
+.deco-stamp-inner{
+  aspect-ratio:3/4;border-radius:3px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  font-size:26px;gap:3px;
+  border:3px dashed rgba(0,0,0,0.08);
+  position:relative;
+}
+.deco-stamp-label{
+  font-family:'Playfair Display',serif;
+  font-size:7px;text-align:center;color:rgba(0,0,0,0.5);
+  padding:3px 2px 1px;font-weight:700;letter-spacing:0.5px;
+}
+
+/* ===== NAVBAR ===== */
+.navbar{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  height:68px;
+  background:rgba(15,50,20,0.93);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;
+  transition:all 0.3s;
+}
+.navbar.scrolled{background:rgba(12,40,16,0.98);box-shadow:0 4px 30px rgba(0,0,0,0.5)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo-icon{
+  width:38px;height:38px;border-radius:9px;
+  background:linear-gradient(135deg,#f9a825,#f9a825);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;box-shadow:0 4px 12px rgba(245,158,11,0.35);
+}
+.nav-logo-name{
+  font-family:'Playfair Display',serif;
+  font-size:21px;font-weight:900;color:#fff;letter-spacing:0.3px;
+}
+.nav-logo-name span{color:#fdd835}
+.nav-links{display:flex;align-items:center;gap:2px;list-style:none}
+.nav-links a{
+  font-size:13px;font-weight:600;color:rgba(255,255,255,0.7);
+  padding:7px 13px;border-radius:7px;text-decoration:none;
+  transition:all 0.2s;
+}
+.nav-links a:hover{color:#fff;background:rgba(255,255,255,0.08)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-wallet{
+  background:linear-gradient(135deg,#388e3c,#43a047);
+  color:#fff;padding:8px 16px;border-radius:18px;
+  font-size:13px;font-weight:700;border:none;cursor:pointer;
+  transition:all 0.2s;
+}
+.nav-wallet:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(56,142,60,0.4)}
+.nav-icon{
+  width:37px;height:37px;border-radius:50%;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  color:#fff;font-size:17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;transition:all 0.2s;
+}
+.nav-icon:hover{background:rgba(255,255,255,0.12)}
+.nav-dot{
+  position:absolute;top:0;right:0;
+  width:8px;height:8px;background:#c62828;
+  border-radius:50%;border:2px solid #1b5e20;
+}
+
+/* ===== HERO CONTENT ===== */
+.hero-content{
+  position:relative;z-index:2;
+  max-width:580px;padding:60px 60px 80px;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(253,216,53,0.15);
+  border:1px solid rgba(253,216,53,0.4);
+  border-radius:18px;padding:5px 15px;
+  margin-bottom:26px;
+  font-size:11.5px;font-weight:700;color:#f9a825;
+  letter-spacing:1.5px;text-transform:uppercase;
+}
+.hero h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(42px,5.5vw,74px);
+  font-weight:900;color:#fff;line-height:1.1;
+  margin-bottom:18px;
+}
+.hero h1 em{
+  font-style:italic;
+  background:linear-gradient(135deg,#fdd835,#fff176);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-sub{
+  font-size:16.5px;color:rgba(255,255,255,0.65);
+  line-height:1.75;max-width:460px;margin-bottom:34px;
+}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn-glow{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:13px 30px;border-radius:10px;
+  font-family:'Nunito',sans-serif;font-size:14.5px;font-weight:800;
+  cursor:pointer;text-decoration:none;border:none;
+  transition:all 0.25s;position:relative;overflow:hidden;
+}
+.btn-glow-blue{
+  background:linear-gradient(135deg,#388e3c,#66bb6a);
+  color:#fff;box-shadow:0 6px 22px rgba(56,142,60,0.4);
+}
+.btn-glow-blue:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(56,142,60,0.55)}
+.btn-glow-outline{
+  background:rgba(255,255,255,0.07);
+  border:1.5px solid rgba(255,255,255,0.3)!important;
+  color:#fff;
+}
+.btn-glow-outline:hover{background:rgba(255,255,255,0.13);border-color:rgba(255,255,255,0.5)!important}
+
+/* hero stats */
+.hero-stats{
+  display:flex;gap:32px;margin-top:36px;
+  padding-top:32px;border-top:1px solid rgba(255,255,255,0.1);
+}
+.hstat-num{
+  font-family:'Playfair Display',serif;
+  font-size:28px;font-weight:900;color:#fdd835;
+}
+.hstat-lbl{font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;font-weight:600}
+
+/* ===== SEARCH BAR ===== */
+.search-section{
+  background:#f9fbe7;padding:20px 50px;
+  border-bottom:1px solid rgba(0,0,0,0.07);
+  box-shadow:0 4px 20px rgba(0,0,0,0.06);
+  position:relative;z-index:10;
+}
+.search-row{
+  display:flex;gap:8px;max-width:1100px;
+  margin:0 auto;align-items:center;
+}
+.s-select{
+  height:48px;padding:0 14px;
+  border:2px solid #e5e7eb;border-radius:9px;
+  font-family:'Nunito',sans-serif;font-size:13.5px;font-weight:600;
+  color:#1b2b1c;background:#fff;cursor:pointer;outline:none;
+  transition:border-color 0.2s;min-width:128px;
+}
+.s-select:focus{border-color:#388e3c}
+.s-inp-wrap{flex:1;position:relative}
+.s-inp{
+  width:100%;height:48px;padding:0 50px 0 18px;
+  border:2px solid #e5e7eb;border-radius:9px;
+  font-family:'Nunito',sans-serif;font-size:14.5px;
+  outline:none;transition:border-color 0.2s;
+}
+.s-inp:focus{border-color:#388e3c}
+.s-cam{
+  position:absolute;right:9px;top:50%;transform:translateY(-50%);
+  width:32px;height:32px;border-radius:7px;
+  background:linear-gradient(135deg,#388e3c,#43a047);
+  color:#fff;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;transition:transform 0.2s;
+}
+.s-cam:hover{transform:translateY(-50%) scale(1.08)}
+.s-btn{
+  height:48px;padding:0 26px;
+  background:linear-gradient(135deg,#388e3c,#43a047);
+  color:#fff;border:none;border-radius:9px;
+  font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;
+  cursor:pointer;white-space:nowrap;
+  transition:all 0.2s;box-shadow:0 4px 14px rgba(56,142,60,0.3);
+}
+.s-btn:hover{transform:translateY(-1px);box-shadow:0 7px 22px rgba(56,142,60,0.45)}
+
+/* ===== FEATURES STRIP ===== */
+.feat-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  background:#fff;border-bottom:1px solid rgba(0,0,0,0.07);
+}
+.feat-item{
+  padding:20px 22px;display:flex;align-items:center;gap:14px;
+  border-right:1px solid rgba(0,0,0,0.07);
+  cursor:pointer;transition:all 0.22s;position:relative;overflow:hidden;
+}
+.feat-item:last-child{border-right:none}
+.feat-item::after{
+  content:'';position:absolute;bottom:0;left:0;
+  width:0;height:3px;
+  background:linear-gradient(90deg,#388e3c,#66bb6a);
+  transition:width 0.3s;
+}
+.feat-item:hover::after{width:100%}
+.feat-item:hover{background:#f1f8e9}
+.feat-ico{
+  width:48px;height:48px;border-radius:13px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.feat-txt h4{font-size:14px;font-weight:800;margin-bottom:2px}
+.feat-txt p{font-size:11.5px;color:#5d7a5e;line-height:1.4}
+
+/* ===== SECTION HEADINGS ===== */
+.sec-wrap{padding:65px 50px;position:relative}
+.sec-hd{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px}
+.sec-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(24px,3vw,36px);font-weight:900;color:#1b2b1c;
+}
+.sec-eye{
+  display:block;font-family:'Nunito',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:2.5px;
+  text-transform:uppercase;color:#388e3c;margin-bottom:5px;
+}
+.view-all{
+  font-size:13px;font-weight:700;color:#388e3c;
+  text-decoration:none;display:inline-flex;align-items:center;gap:4px;
+  transition:gap 0.2s;
+}
+.view-all:hover{gap:8px}
+
+/* ===== STAMPS ===== */
+.stamps-bg{background:linear-gradient(180deg,#fff 0%,#f9fbe7 100%)}
+.stamps-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:18px;
+}
+.s-card{
+  background:#fff;border-radius:16px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.10);overflow:hidden;
+  cursor:pointer;transition:all 0.3s;
+  border:1px solid rgba(0,0,0,0.07);
+}
+.s-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,0.16)}
+.s-card-img{
+  padding:24px;display:flex;align-items:center;justify-content:center;
+  min-height:155px;position:relative;
+}
+.s-thumb{
+  width:92px;height:122px;border-radius:5px;background:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:36px;gap:4px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.12);
+  position:relative;
+  border:2px solid rgba(0,0,0,0.06);
+}
+.s-thumb::before{
+  content:'';position:absolute;inset:4px;
+  border:3px dashed rgba(0,0,0,0.07);border-radius:3px;
+}
+.s-yr{font-family:'Playfair Display',serif;font-size:8.5px;font-weight:700;color:rgba(0,0,0,0.4);letter-spacing:0.8px}
+.s-badge{
+  position:absolute;top:10px;right:10px;
+  padding:3px 8px;border-radius:5px;
+  font-size:9.5px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;
+}
+.badge-r{background:linear-gradient(135deg,#f9a825,#f9a825);color:#fff}
+.badge-n{background:linear-gradient(135deg,#388e3c,#66bb6a);color:#fff}
+.badge-h{background:linear-gradient(135deg,#c62828,#f87171);color:#fff}
+.s-body{padding:13px 15px 10px}
+.s-name{
+  font-family:'Playfair Display',serif;
+  font-size:14.5px;font-weight:700;color:#1b2b1c;
+  margin-bottom:5px;line-height:1.3;
+}
+.s-price{font-size:18px;font-weight:800;color:#2e7d32}
+.s-price del{font-size:11.5px;color:#5d7a5e;font-weight:400;margin-left:5px}
+.s-actions{display:flex;gap:7px;padding:0 15px 14px}
+.s-add{
+  flex:1;padding:9px;border:none;border-radius:8px;
+  background:linear-gradient(135deg,#388e3c,#66bb6a);
+  color:#fff;font-family:'Nunito',sans-serif;
+  font-size:12.5px;font-weight:700;cursor:pointer;transition:all 0.2s;
+}
+.s-add:hover{filter:brightness(1.1)}
+.s-wish{
+  width:38px;height:38px;border-radius:8px;
+  background:#fffde7;border:none;font-size:16px;
+  cursor:pointer;transition:all 0.2s;
+}
+.s-wish:hover{background:#fee2e2;transform:scale(1.08)}
+
+/* ===== TWO-COL ===== */
+.two-col{display:grid;grid-template-columns:1fr 390px}
+
+/* ===== AUCTIONS ===== */
+.auctions-bg{background:linear-gradient(180deg,#fffde7 0%,#fff 100%)}
+.a-card{
+  display:flex;align-items:center;gap:14px;
+  background:#fff;border-radius:14px;
+  padding:17px;margin-bottom:13px;
+  border:1px solid rgba(0,0,0,0.07);
+  box-shadow:0 4px 20px rgba(0,0,0,0.10);cursor:pointer;transition:all 0.22s;
+}
+.a-card:hover{transform:translateX(4px);box-shadow:0 12px 40px rgba(0,0,0,0.16)}
+.a-thumb{
+  width:65px;height:84px;flex-shrink:0;
+  background:#fffde7;border-radius:6px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  font-size:24px;border:2px dashed rgba(0,0,0,0.1);gap:3px;
+}
+.a-name{
+  font-family:'Playfair Display',serif;
+  font-size:14.5px;font-weight:700;margin-bottom:4px;
+}
+.a-bid{font-size:20px;font-weight:800;color:#388e3c;margin-bottom:5px}
+.a-bid small{font-size:11px;color:#5d7a5e;font-weight:400}
+.a-timer{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(220,38,38,0.09);color:#c62828;
+  padding:3px 11px;border-radius:18px;font-size:12px;font-weight:700;
+}
+.ldot{animation:ldotBlink 1s ease-in-out infinite;font-size:9px}
+@keyframes ldotBlink{0%,100%{opacity:1}50%{opacity:0.2}}
+.bid-now{
+  margin-left:auto;flex-shrink:0;
+  padding:9px 16px;
+  background:linear-gradient(135deg,#c62828,#ef4444);
+  color:#fff;border:none;border-radius:8px;
+  font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+}
+.bid-now:hover{filter:brightness(1.1);transform:scale(1.04)}
+
+/* ===== TRACKING ===== */
+.track-bg{background:linear-gradient(180deg,#f9fbe7 0%,#fffde7 100%)}
+.tr-card{
+  background:#fff;border-radius:14px;padding:22px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.10);margin-bottom:16px;border:1px solid rgba(0,0,0,0.07);
+}
+.tr-oid{font-size:11.5px;color:#5d7a5e;letter-spacing:0.8px;margin-bottom:3px;font-weight:600}
+.tr-item{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;margin-bottom:18px}
+.tr-steps{position:relative;display:flex;flex-direction:column;gap:0}
+.tr-steps::before{
+  content:'';position:absolute;left:13px;top:8px;bottom:8px;
+  width:2px;background:#e5e7eb;z-index:0;
+}
+.tr-step{display:flex;align-items:flex-start;gap:13px;padding:7px 0;position:relative;z-index:1}
+.tr-dot{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;background:#fff;border:2px solid #e5e7eb;
+}
+.tr-dot.done{background:#388e3c;border-color:#388e3c;color:#fff}
+.tr-dot.active{
+  background:#388e3c;border-color:#388e3c;color:#fff;
+  animation:dotPulse 1.5s ease-in-out infinite;
+}
+@keyframes dotPulse{0%,100%{box-shadow:0 0 0 0 rgba(56,142,60,0.4)}50%{box-shadow:0 0 0 8px rgba(56,142,60,0)}}
+.tr-text h5{font-size:13px;font-weight:700;margin-bottom:1px}
+.tr-text p{font-size:11px;color:#5d7a5e}
+
+.tr-input-card{
+  background:linear-gradient(135deg,#1b5e20,#1a3a6b);
+  border-radius:14px;padding:20px;color:#fff;
+}
+.tr-input-card label{
+  display:block;font-size:11.5px;font-weight:700;
+  color:rgba(255,255,255,0.6);margin-bottom:7px;letter-spacing:1px;
+}
+.tr-row{display:flex;gap:7px}
+.tr-inp{
+  flex:1;padding:10px 13px;
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:8px;
+  background:rgba(255,255,255,0.1);color:#fff;
+  font-family:'Nunito',sans-serif;font-size:13.5px;outline:none;
+}
+.tr-inp::placeholder{color:rgba(255,255,255,0.4)}
+.tr-inp:focus{border-color:#fdd835}
+.tr-go{
+  padding:10px 16px;
+  background:linear-gradient(135deg,#fdd835,#f9a825);
+  color:#1b2b1c;border:none;border-radius:8px;
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
+  cursor:pointer;transition:all 0.2s;
+}
+.tr-go:hover{filter:brightness(1.08)}
+.tr-result{
+  background:#fff;border-radius:12px;padding:16px;
+  margin-top:13px;display:none;
+  border:1px solid rgba(56,142,60,0.12);
+  animation:fadeUp 0.35s ease-out;
+}
+.tr-result.show{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== UPDATES / NEWS ===== */
+.updates-bg{background:#fafde8}
+.ticker{
+  display:flex;align-items:center;gap:14px;
+  background:#1b5e20;border-radius:11px;padding:11px 18px;
+  margin-bottom:28px;overflow:hidden;
+}
+.ticker-live{
+  background:#c62828;color:#fff;
+  font-size:10px;font-weight:800;letter-spacing:1.5px;
+  padding:3px 9px;border-radius:4px;flex-shrink:0;text-transform:uppercase;
+}
+.ticker-scroll{overflow:hidden;flex:1}
+.ticker-text{
+  white-space:nowrap;font-size:13px;font-weight:600;color:#fdd835;
+  display:inline-block;animation:tickerAnim 28s linear infinite;
+}
+@keyframes tickerAnim{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.news-card{
+  background:#fff;border-radius:14px;overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,0,0,0.10);cursor:pointer;transition:all 0.28s;
+}
+.news-card:hover{transform:translateY(-5px);box-shadow:0 12px 40px rgba(0,0,0,0.16)}
+.news-img{
+  height:120px;display:flex;align-items:center;
+  justify-content:center;font-size:48px;
+}
+.news-body{padding:16px}
+.news-tag{
+  display:inline-block;padding:2px 8px;border-radius:4px;
+  font-size:10px;font-weight:800;letter-spacing:0.8px;
+  text-transform:uppercase;margin-bottom:7px;
+}
+.news-title{
+  font-family:'Playfair Display',serif;
+  font-size:15px;font-weight:700;color:#1b2b1c;
+  margin-bottom:5px;line-height:1.4;
+}
+.news-date{font-size:11px;color:#5d7a5e}
+
+/* AUDIO BLOG */
+.audio-bar{
+  background:linear-gradient(135deg,#2e7d32,#388e3c);
+  border-radius:14px;padding:18px 22px;
+  display:flex;align-items:center;gap:16px;margin-top:18px;cursor:pointer;
+  transition:all 0.25s;
+}
+.audio-bar:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,0.16)}
+.ap-play{
+  width:50px;height:50px;border-radius:50%;
+  background:#fdd835;color:#1b2b1c;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;cursor:pointer;border:none;flex-shrink:0;transition:all 0.2s;
+}
+.ap-play:hover{transform:scale(1.1)}
+.ap-waves{
+  flex:1;height:34px;display:flex;align-items:center;gap:2px;overflow:hidden;
+}
+.ap-bar{
+  flex:1;border-radius:2px;
+  background:rgba(255,255,255,0.3);
+  animation:waveUp var(--wd,0.7s) ease-in-out infinite;
+  animation-delay:var(--dl,0s);
+}
+@keyframes waveUp{0%,100%{height:4px}50%{height:var(--h,18px)}}
+.ap-info{color:#fff;min-width:0}
+.ap-title{font-weight:700;font-size:14px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ap-sub{font-size:11.5px;color:rgba(255,255,255,0.6)}
+.ap-prog{flex:0 0 84px;margin-left:auto}
+.ap-time{color:rgba(255,255,255,0.65);font-size:11.5px;margin-bottom:3px;text-align:right}
+.ap-pbar{height:3px;background:rgba(255,255,255,0.2);border-radius:2px}
+.ap-fill{width:0%;height:100%;background:#fdd835;border-radius:2px}
+
+/* ===== GAMES ===== */
+.games-section{
+  padding:75px 50px;
+  background:
+    radial-gradient(ellipse 100% 60% at 50% 100%, rgba(56,142,60,0.15) 0%, transparent 70%),
+    linear-gradient(160deg,#1b5e20 0%,#2e7d32 40%,#1a4d1a 100%);
+  position:relative;overflow:hidden;
+}
+.games-section::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size:50px 50px;
+}
+.games-hd{text-align:center;margin-bottom:50px;position:relative;z-index:1}
+.games-hd .sec-eye{color:#fdd835}
+.games-hd h2{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(30px,4vw,48px);font-weight:900;color:#fff;margin-bottom:8px;
+}
+.games-hd p{font-size:15.5px;color:rgba(255,255,255,0.55);max-width:480px;margin:0 auto}
+.games-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:26px;
+  position:relative;z-index:1;
+}
+
+/* QUIZ CARD */
+.quiz-card{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px;padding:30px;color:#fff;
+}
+.qcard-hd{display:flex;align-items:center;gap:11px;margin-bottom:5px}
+.qcard-ico{
+  width:42px;height:42px;border-radius:11px;
+  background:linear-gradient(135deg,#fdd835,#f9a825);
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+}
+.qcard-title{font-family:'Playfair Display',serif;font-size:21px;font-weight:700}
+.qcard-sub{font-size:11.5px;color:rgba(255,255,255,0.4);margin-top:1px}
+.qcard-desc{font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:20px;line-height:1.55}
+.q-num{font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fdd835;margin-bottom:9px}
+.q-text{font-size:15px;font-weight:600;margin-bottom:16px;line-height:1.55;color:rgba(255,255,255,0.92)}
+.q-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.q-opt{
+  padding:11px 16px;border-radius:10px;
+  border:2px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.04);
+  color:rgba(255,255,255,0.82);
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;text-align:left;transition:all 0.2s;
+}
+.q-opt:hover:not(:disabled){background:rgba(255,255,255,0.09);border-color:#fdd835;color:#fff}
+.q-opt.correct{background:rgba(5,150,105,0.2);border-color:#10b981;color:#6ee7b7}
+.q-opt.wrong{background:rgba(220,38,38,0.2);border-color:#ef4444;color:#fca5a5}
+.q-opt:disabled{cursor:default}
+.q-result{
+  padding:9px 13px;border-radius:9px;font-size:13px;font-weight:600;
+  display:none;margin-bottom:11px;
+}
+.q-result.show{display:block}
+.q-result.ok{background:rgba(5,150,105,0.15);color:#6ee7b7}
+.q-result.bad{background:rgba(220,38,38,0.15);color:#fca5a5}
+.q-next{
+  width:100%;padding:12px;
+  background:linear-gradient(135deg,#fdd835,#f9a825);
+  color:#1b2b1c;border:none;border-radius:10px;
+  font-family:'Nunito',sans-serif;font-size:14.5px;font-weight:800;
+  cursor:pointer;transition:all 0.2s;display:none;
+}
+.q-next:hover{filter:brightness(1.08);transform:translateY(-1px)}
+
+/* RUNNER CARD */
+.runner-card{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px;padding:30px;color:#fff;
+  display:flex;flex-direction:column;
+}
+.rcard-hd{display:flex;align-items:center;gap:11px;margin-bottom:5px}
+.rcard-ico{
+  width:42px;height:42px;border-radius:11px;
+  background:linear-gradient(135deg,#388e3c,#66bb6a);
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+}
+.rcard-title{font-family:'Playfair Display',serif;font-size:21px;font-weight:700}
+.rcard-sub{font-size:11.5px;color:rgba(255,255,255,0.4);margin-top:1px}
+.rcard-desc{font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:16px;line-height:1.55}
+.r-score-row{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;
+}
+.r-score{font-size:26px;font-weight:800;color:#fdd835}
+.r-score small{font-size:12px;font-weight:400;color:rgba(255,255,255,0.45)}
+.r-best{font-size:13px;color:rgba(255,255,255,0.45);font-weight:600}
+.r-canvas-wrap{
+  background:linear-gradient(180deg,#0a2040 0%,#0d2e58 55%,#5c3a0a 55%,#7a4d0f 100%);
+  border-radius:12px;overflow:hidden;position:relative;
+  height:175px;margin-bottom:14px;cursor:pointer;
+  border:1px solid rgba(255,255,255,0.08);
+}
+#runnerCanvas{width:100%;height:100%;display:block}
+.r-overlay{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.5);gap:8px;
+  transition:opacity 0.3s;
+}
+.r-overlay.hide{opacity:0;pointer-events:none}
+.r-start{
+  padding:9px 26px;border-radius:18px;
+  background:linear-gradient(135deg,#fdd835,#f9a825);
+  color:#1b2b1c;border:none;
+  font-family:'Nunito',sans-serif;font-size:13.5px;font-weight:800;
+  cursor:pointer;transition:all 0.2s;
+}
+.r-start:hover{transform:scale(1.05)}
+.r-jump{
+  width:100%;padding:12px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#388e3c,#66bb6a);
+  color:#fff;font-family:'Nunito',sans-serif;
+  font-size:14px;font-weight:800;cursor:pointer;transition:all 0.2s;
+}
+.r-jump:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.r-jump:active{transform:translateY(0)}
+
+/* POINTS PANEL */
+.pts-panel{
+  grid-column:span 2;
+  background:rgba(253,216,53,0.07);
+  border:1px solid rgba(253,216,53,0.25);
+  border-radius:20px;padding:28px;color:#fff;
+  display:grid;grid-template-columns:200px 1fr 1fr;gap:22px;align-items:start;
+}
+.pts-big{
+  font-family:'Playfair Display',serif;
+  font-size:64px;font-weight:900;color:#fdd835;line-height:1;margin-bottom:2px;
+}
+.pts-lbl{color:rgba(255,255,255,0.5);margin-bottom:18px;font-size:13.5px}
+.lvl-row{display:flex;justify-content:space-between;font-size:11.5px;color:rgba(255,255,255,0.5);margin-bottom:5px}
+.lvl-bar{background:rgba(255,255,255,0.1);height:9px;border-radius:5px;overflow:hidden}
+.lvl-fill{height:100%;background:linear-gradient(90deg,#fdd835,#fff176);border-radius:5px;transition:width 1s ease}
+.pts-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
+.pts-stat{background:rgba(255,255,255,0.05);border-radius:9px;padding:10px;text-align:center}
+.pts-stat-n{font-size:20px;font-weight:800;color:#fdd835}
+.pts-stat-l{font-size:10.5px;color:rgba(255,255,255,0.4);margin-top:2px}
+.lb{background:rgba(255,255,255,0.04);border-radius:11px;padding:14px}
+.lb-hd{font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fdd835;margin-bottom:11px}
+.lb-row{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{font-size:15px;width:20px;text-align:center}
+.lb-name{flex:1;font-size:12.5px;font-weight:500}
+.lb-pts{font-size:12.5px;color:#fdd835;font-weight:700}
+.earn-list{display:flex;flex-direction:column;gap:9px}
+.earn-item{
+  background:rgba(255,255,255,0.04);border-radius:9px;
+  padding:11px;display:flex;align-items:center;gap:9px;
+}
+.earn-item span{font-size:19px}
+.earn-item h5{font-size:13px;font-weight:600;margin-bottom:1px}
+.earn-item p{font-size:11px;color:rgba(255,255,255,0.4)}
+
+/* ===== COMMUNITY ===== */
+.community-bg{background:#f9fbe7}
+.forum-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.forum-card{
+  background:#fffde7;border-radius:13px;
+  padding:18px;border:1px solid rgba(0,0,0,0.05);
+  cursor:pointer;transition:all 0.22s;
+}
+.forum-card:hover{box-shadow:0 12px 40px rgba(0,0,0,0.16);transform:translateY(-3px)}
+.ftag{
+  display:inline-block;padding:2px 8px;border-radius:4px;
+  font-size:10px;font-weight:800;letter-spacing:0.8px;
+  text-transform:uppercase;margin-bottom:8px;
+}
+.ftag-d{background:rgba(56,142,60,0.09);color:#388e3c}
+.ftag-n{background:rgba(56,142,60,0.09);color:#388e3c}
+.ftag-s{background:rgba(217,119,6,0.12);color:#f9a825}
+.ftag-r{background:rgba(220,38,38,0.09);color:#c62828}
+.f-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#1b2b1c;margin-bottom:7px;line-height:1.4}
+.f-meta{font-size:11.5px;color:#5d7a5e;display:flex;gap:13px}
+
+/* ===== PAYMENT MODAL ===== */
+.modal-bg{
+  position:fixed;inset:0;z-index:2000;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-bg.open{display:flex}
+.modal-box{
+  background:#fff;border-radius:22px;
+  width:100%;max-width:490px;max-height:90vh;overflow-y:auto;
+  padding:34px;box-shadow:0 24px 60px rgba(0,0,0,0.24);position:relative;
+  animation:modalIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+@keyframes modalIn{from{transform:scale(0.88);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-close{
+  position:absolute;top:15px;right:15px;
+  width:34px;height:34px;border-radius:50%;
+  background:#fffde7;border:none;font-size:18px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+}
+.modal-close:hover{background:#f9fbe7;transform:rotate(90deg)}
+.modal-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;margin-bottom:5px;color:#1b2b1c}
+.modal-sub{font-size:13.5px;color:#5d7a5e;margin-bottom:20px}
+.pay-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.ptab{
+  flex:1;min-width:78px;padding:9px 5px;border-radius:9px;
+  border:2px solid #e5e7eb;background:#fff;
+  font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;text-align:center;
+}
+.ptab.on{border-color:#388e3c;background:rgba(56,142,60,0.07);color:#388e3c}
+.upi-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px}
+.upi-opt{
+  padding:10px 13px;border:2px solid #e5e7eb;border-radius:9px;
+  cursor:pointer;display:flex;align-items:center;gap:7px;
+  font-size:13px;font-weight:600;transition:all 0.2s;background:#fff;
+}
+.upi-opt:hover{border-color:#388e3c;background:#f1f8e9}
+.upi-opt.sel{border-color:#388e3c;background:rgba(29,78,216,0.06)}
+.upi-ico{font-size:19px}
+.p-inp{
+  width:100%;padding:12px 15px;
+  border:2px solid #e5e7eb;border-radius:9px;
+  font-family:'Nunito',sans-serif;font-size:14.5px;
+  outline:none;transition:border-color 0.2s;margin-bottom:11px;display:block;
+}
+.p-inp:focus{border-color:#388e3c}
+.sec-badge{
+  background:#fffde7;border-radius:9px;
+  padding:11px 14px;font-size:12px;color:#5d7a5e;
+  margin-bottom:9px;display:flex;align-items:center;gap:7px;
+}
+.pay-btn{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,#388e3c,#66bb6a);
+  color:#fff;border:none;border-radius:11px;
+  font-family:'Nunito',sans-serif;font-size:15.5px;font-weight:800;
+  cursor:pointer;transition:all 0.2s;
+}
+.pay-btn:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(56,142,60,0.35)}
+
+/* ===== CAMERA MODAL ===== */
+.cam-viewport{
+  background:linear-gradient(180deg,#0a1628,#163055);
+  border-radius:14px;aspect-ratio:4/3;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  margin:16px 0;position:relative;overflow:hidden;
+}
+.scan-box{
+  width:155px;height:155px;border:3px solid #fdd835;
+  border-radius:12px;position:relative;
+  animation:scanPulse 2s ease-in-out infinite;
+}
+@keyframes scanPulse{0%,100%{border-color:#fdd835;box-shadow:0 0 0 0 rgba(253,216,53,0.3)}50%{border-color:#fff176;box-shadow:0 0 0 10px rgba(253,216,53,0)}}
+.scan-laser{
+  position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,#fdd835,transparent);
+  animation:laserMove 1.8s ease-in-out infinite;
+}
+@keyframes laserMove{0%{top:0}100%{top:100%}}
+.cam-hint{font-size:12.5px;color:rgba(255,255,255,0.55);margin-top:12px}
+.ai-result{
+  background:#fffde7;border-radius:11px;
+  padding:14px;margin-top:12px;display:none;
+  animation:fadeUp 0.3s ease-out;
+}
+.ai-result.show{display:block}
+.ai-result-name{font-weight:800;margin-bottom:4px;font-size:14.5px;color:#1b2b1c}
+.ai-result-det{font-size:12.5px;color:#5d7a5e;line-height:1.6}
+.cam-btn-row{display:flex;gap:8px;margin-top:4px}
+.cam-capture{
+  flex:1;padding:11px;border:none;border-radius:9px;
+  background:linear-gradient(135deg,#388e3c,#66bb6a);
+  color:#fff;font-family:'Nunito',sans-serif;font-size:13.5px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+}
+.cam-capture:hover{filter:brightness(1.1)}
+.cam-upload{
+  padding:11px 16px;border:none;border-radius:9px;
+  background:#fffde7;color:#1b2b1c;
+  font-family:'Nunito',sans-serif;font-size:13.5px;font-weight:600;cursor:pointer;
+}
+
+/* ===== CHATBOT ===== */
+.chat-btn{
+  position:fixed;bottom:26px;right:26px;z-index:900;
+  width:58px;height:58px;border-radius:50%;border:none;
+  background:linear-gradient(135deg,#388e3c,#66bb6a);
+  color:#fff;font-size:25px;cursor:pointer;
+  box-shadow:0 6px 22px rgba(56,142,60,0.4);
+  transition:all 0.3s;display:flex;align-items:center;justify-content:center;
+}
+.chat-btn:hover{transform:scale(1.1);box-shadow:0 10px 32px rgba(56,142,60,0.5)}
+.chat-bounce{animation:chatBounce 2s ease-in-out infinite}
+@keyframes chatBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.chat-window{
+  position:fixed;bottom:98px;right:26px;z-index:900;
+  width:350px;height:485px;
+  background:#fff;border-radius:20px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.24);overflow:hidden;
+  display:none;flex-direction:column;
+  border:1px solid rgba(0,0,0,0.06);
+}
+.chat-window.open{display:flex;animation:chatOpen 0.3s cubic-bezier(0.175,0.885,0.32,1.275)}
+@keyframes chatOpen{from{transform:scale(0.82) translateY(16px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.chat-hd{
+  background:linear-gradient(135deg,#1b5e20,#388e3c);
+  padding:14px 17px;display:flex;align-items:center;gap:11px;
+}
+.chat-av{
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  display:flex;align-items:center;justify-content:center;font-size:19px;
+}
+.chat-hd-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:1px}
+.chat-hd-sub{font-size:11px;color:rgba(255,255,255,0.65)}
+.chat-online{
+  margin-left:auto;display:flex;align-items:center;gap:5px;
+  font-size:11px;color:rgba(255,255,255,0.6);
+}
+.cdot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:dotPulse 1.5s ease-in-out infinite}
+.chat-close{background:none;border:none;color:rgba(255,255,255,0.6);font-size:18px;cursor:pointer;margin-left:6px}
+.chat-msgs{flex:1;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:9px}
+.cmsg{max-width:80%;padding:9px 13px;border-radius:15px;font-size:13px;line-height:1.55}
+.cmsg.bot{background:#fffde7;color:#1b2b1c;border-radius:4px 15px 15px 15px;align-self:flex-start}
+.cmsg.usr{background:linear-gradient(135deg,#388e3c,#66bb6a);color:#fff;border-radius:15px 4px 15px 15px;align-self:flex-end}
+.chat-quick{display:flex;gap:5px;flex-wrap:wrap;padding:0 13px 9px}
+.cqbtn{
+  padding:4px 11px;border-radius:18px;
+  border:1.5px solid #388e3c;color:#388e3c;
+  background:#fff;font-size:11.5px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;
+}
+.cqbtn:hover{background:#388e3c;color:#fff}
+.chat-inp-row{padding:9px 13px;border-top:1px solid #e5e7eb;display:flex;gap:7px}
+.chat-inp{
+  flex:1;padding:8px 13px;
+  border:2px solid #e5e7eb;border-radius:18px;
+  font-family:'Nunito',sans-serif;font-size:13px;outline:none;
+  transition:border-color 0.2s;
+}
+.chat-inp:focus{border-color:#388e3c}
+.chat-send{
+  width:36px;height:36px;border-radius:50%;
+  background:#388e3c;color:#fff;border:none;
+  font-size:16px;cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;
+}
+.chat-send:hover{transform:scale(1.1)}
+
+/* ===== FOOTER ===== */
+.footer-wrap{
+  background:#1b5e20;color:rgba(255,255,255,0.75);
+  padding:60px 50px 28px;
+}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:38px;margin-bottom:38px}
+.f-brand-name{
+  font-family:'Playfair Display',serif;
+  font-size:22px;font-weight:900;color:#fff;margin-bottom:9px;
+}
+.f-brand-name span{color:#fdd835}
+.f-desc{font-size:12.5px;line-height:1.75;margin-bottom:15px}
+.f-contacts{display:flex;flex-direction:column;gap:7px}
+.f-contacts a{
+  color:#fdd835;text-decoration:none;
+  font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:6px;
+  transition:color 0.2s;
+}
+.f-contacts a:hover{color:#fcd34d}
+.f-hdg{font-size:11.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#fdd835;margin-bottom:14px}
+.f-links{list-style:none;display:flex;flex-direction:column;gap:8px}
+.f-links a{color:rgba(255,255,255,0.5);text-decoration:none;font-size:13px;transition:color 0.2s}
+.f-links a:hover{color:#fff}
+.footer-bottom{
+  border-top:1px solid rgba(255,255,255,0.07);
+  padding-top:20px;display:flex;
+  justify-content:space-between;align-items:center;
+  font-size:12.5px;color:rgba(255,255,255,0.3);flex-wrap:wrap;gap:8px;
+}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;bottom:90px;left:50%;
+  transform:translateX(-50%) translateY(14px);
+  background:#1b5e20;color:#fff;padding:12px 22px;border-radius:11px;
+  font-size:13.5px;font-weight:600;z-index:3000;
+  opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;
+  box-shadow:0 8px 28px rgba(0,0,0,0.3);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:1050px){
+  .two-col{grid-template-columns:1fr}
+  .games-grid{grid-template-columns:1fr}
+  .pts-panel{grid-column:span 1;grid-template-columns:1fr}
+}
+@media(max-width:800px){
+  .navbar{padding:0 18px}
+  .nav-links{display:none}
+  .hero-stamp-deco{display:none}
+  .hero-content{padding:40px 20px 60px}
+  .search-section{padding:16px 18px}
+  .search-row{flex-wrap:wrap}
+  .s-select{min-width:unset;width:calc(50% - 4px)}
+  .feat-strip{grid-template-columns:1fr 1fr}
+  .sec-wrap{padding:45px 18px}
+  .stamps-grid{grid-template-columns:repeat(2,1fr)}
+  .news-grid{grid-template-columns:1fr}
+  .forum-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .footer-wrap{padding:40px 18px 22px}
+  .games-section{padding:55px 18px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="navbar">
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-icon">📮</div>
+    <span class="nav-logo-name">Stamp<span>Collector</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#stamps">Explore Stamps</a></li>
+    <li><a href="#auctions">Live Auctions</a></li>
+    <li><a href="#track-sec">Track Order</a></li>
+    <li><a href="#games">Games</a></li>
+    <li><a href="#community">Community</a></li>
+    <li><a href="#news-sec">Blog</a></li>
+    <li><a href="#footer-sec">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-wallet" onclick="openPayment()">💳 ₹1,500</button>
+    <button class="nav-icon" onclick="openCamera()">📷</button>
+    <button class="nav-icon" style="position:relative">🔔<div class="nav-dot"></div></button>
+    <button class="nav-icon">👤</button>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero-section">
+  <div class="hero-grid"></div>
+  <div class="hero-glow1"></div>
+  <div class="hero-glow2"></div>
+
+  <!-- stamp wall -->
+  <div class="hero-stamp-deco" id="heroDeco"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">🇮🇳 India's #1 Philately Platform</div>
+    <h1 class="hero">Collect, Connect<br>&amp; <em>Celebrate</em><br>Rare Stamps</h1>
+    <p class="hero-sub">From small villages to big cities — every philatelist in India, united on one platform. Buy, sell, bid, track and learn.</p>
+    <div class="hero-btns">
+      <a href="#stamps" class="btn-glow btn-glow-blue">🔍 Explore Stamps</a>
+      <a href="#community" class="btn-glow btn-glow-outline">👥 Join Community</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="hstat-num">50K+</div><div class="hstat-lbl">Stamps Listed</div></div>
+      <div><div class="hstat-num">1.2L+</div><div class="hstat-lbl">Collectors</div></div>
+      <div><div class="hstat-num">190+</div><div class="hstat-lbl">Countries</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEARCH ===== -->
+<div class="search-section">
+  <div class="search-row">
+    <select class="s-select">
+      <option>All Categories</option>
+      <option>Indian Stamps</option>
+      <option>World Stamps</option>
+      <option>Rare &amp; Vintage</option>
+      <option>Commemorative</option>
+    </select>
+    <select class="s-select">
+      <option>Country</option>
+      <option>India</option>
+      <option>USA</option>
+      <option>UK</option>
+      <option>Germany</option>
+      <option>France</option>
+    </select>
+    <select class="s-select">
+      <option>Year</option>
+      <option>Pre-1947</option>
+      <option>1947-1970</option>
+      <option>1970-1990</option>
+      <option>1990-2010</option>
+      <option>2010-Present</option>
+    </select>
+    <div class="s-inp-wrap">
+      <input class="s-inp" type="text" placeholder="Search stamps by name, theme, country...">
+      <button class="s-cam" onclick="openCamera()">📷</button>
+    </div>
+    <button class="s-btn" onclick="toast('🔍 Searching stamps...')">🔍 Search</button>
+  </div>
+</div>
+
+<!-- ===== FEATURES STRIP ===== -->
+<div class="feat-strip">
+  <div class="feat-item" onclick="toast('🌍 Exploring global stamps...')">
+    <div class="feat-ico" style="background:rgba(56,142,60,0.09)">🌍</div>
+    <div class="feat-txt"><h4>Global Stamps</h4><p>190+ countries, 50,000+ listings</p></div>
+  </div>
+  <div class="feat-item" onclick="openPayment()">
+    <div class="feat-ico" style="background:rgba(56,142,60,0.09)">💳</div>
+    <div class="feat-txt"><h4>Secure Wallet</h4><p>Balance ₹1,500 · UPI / Razorpay</p></div>
+  </div>
+  <div class="feat-item" onclick="document.getElementById('track-sec').scrollIntoView({behavior:'smooth'})">
+    <div class="feat-ico" style="background:rgba(217,119,6,0.09)">🚚</div>
+    <div class="feat-txt"><h4>Track Orders</h4><p>GPS via SpeedPost &amp; Shiprocket</p></div>
+  </div>
+  <div class="feat-item" onclick="toggleChat()">
+    <div class="feat-ico" style="background:rgba(220,38,38,0.09)">🤖</div>
+    <div class="feat-txt"><h4>24/7 AI Chatbot</h4><p>Instant help, always online</p></div>
+  </div>
+</div>
+
+<!-- ===== FEATURED STAMPS ===== -->
+<section class="sec-wrap stamps-bg" id="stamps">
+  <div class="sec-hd">
+    <div class="sec-title"><span class="sec-eye">Browse &amp; Buy</span>Featured Stamps</div>
+    <a href="#" class="view-all">View All &rarr;</a>
+  </div>
+  <div class="stamps-grid" id="stampsGrid"></div>
+</section>
+
+<!-- ===== TWO-COL: AUCTIONS + TRACKING ===== -->
+<div class="two-col">
+  <section class="sec-wrap auctions-bg" id="auctions">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="sec-eye">Live Right Now</span>Stamp Auctions</div>
+      <a href="#" class="view-all">View All &rarr;</a>
+    </div>
+    <div id="auctionList"></div>
+  </section>
+
+  <section class="sec-wrap track-bg" id="track-sec">
+    <div class="sec-hd">
+      <div class="sec-title"><span class="sec-eye">Real-Time GPS</span>Track Your Order</div>
+    </div>
+    <div class="tr-card">
+      <div class="tr-oid">ORDER #SC-2024-8821 · SpeedPost</div>
+      <div class="tr-item">Mahatma Gandhi 1948 × 2</div>
+      <div class="tr-steps">
+        <div class="tr-step"><div class="tr-dot done">✓</div><div class="tr-text"><h5>Order Confirmed</h5><p>Mar 1, 2024 · 10:30 AM</p></div></div>
+        <div class="tr-step"><div class="tr-dot done">✓</div><div class="tr-text"><h5>Packed &amp; Dispatched</h5><p>Mar 2 · Delhi GPO</p></div></div>
+        <div class="tr-step"><div class="tr-dot active">📍</div><div class="tr-text"><h5>In Transit — Bhopal Hub</h5><p>Expected: Mar 4</p></div></div>
+        <div class="tr-step"><div class="tr-dot" style="font-size:15px">🏠</div><div class="tr-text"><h5>Out for Delivery</h5><p>Tomorrow, est. 10 AM</p></div></div>
+      </div>
+    </div>
+    <div class="tr-input-card">
+      <label>TRACK ANY ORDER</label>
+      <div class="tr-row">
+        <input class="tr-inp" id="trInp" type="text" placeholder="Enter Order ID e.g. SC-2024-XXXX">
+        <button class="tr-go" onclick="doTrack()">Track</button>
+      </div>
+      <div class="tr-result" id="trResult">
+        <strong style="font-size:13.5px;color:#1b2b1c">📦 Order found!</strong>
+        <div class="tr-steps" style="margin-top:10px">
+          <div class="tr-step"><div class="tr-dot done">✓</div><div class="tr-text"><h5>Ordered &amp; Confirmed</h5><p>Feb 28 · 2:15 PM</p></div></div>
+          <div class="tr-step"><div class="tr-dot active">📍</div><div class="tr-text"><h5>In Transit — Mumbai Hub</h5><p>Expected: Mar 5</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== NEWS + AUDIO BLOG ===== -->
+<section class="sec-wrap updates-bg" id="news-sec">
+  <div class="ticker">
+    <span class="ticker-live">LIVE</span>
+    <div class="ticker-scroll">
+      <span class="ticker-text" id="tickerTxt"></span>
+    </div>
+  </div>
+  <div class="sec-hd">
+    <div class="sec-title"><span class="sec-eye">Latest Updates</span>Stamp News &amp; Blogs</div>
+    <a href="#" class="view-all">View All &rarr;</a>
+  </div>
+  <div class="audio-bar" onclick="toggleAudio()">
+    <button class="ap-play" id="apPlay">▶</button>
+    <div class="ap-waves" id="apWaves"></div>
+    <div class="ap-info">
+      <div class="ap-title">🎙 New Chandrayaan-3 Stamp — Audio Blog</div>
+      <div class="ap-sub" id="apSub">5:32 · Tap to play</div>
+    </div>
+    <div class="ap-prog">
+      <div class="ap-time" id="apTime">0:00 / 5:32</div>
+      <div class="ap-pbar"><div class="ap-fill" id="apFill"></div></div>
+    </div>
+  </div>
+  <div style="height:22px"></div>
+  <div class="news-grid" id="newsGrid"></div>
+</section>
+
+<!-- ===== GAMES ===== -->
+<section class="games-section" id="games">
+  <div class="games-hd">
+    <div class="sec-eye">PLAY &amp; EARN POINTS</div>
+    <h2>Stamp Games &amp; Challenges</h2>
+    <p>Quiz for knowledge lovers · Stamp Runner for young adventurers!</p>
+  </div>
+  <div class="games-grid">
+    <!-- QUIZ -->
+    <div class="quiz-card">
+      <div class="qcard-hd">
+        <div class="qcard-ico">🎯</div>
+        <div>
+          <div class="qcard-title">Daily Stamp Quiz</div>
+          <div class="qcard-sub">For adults &amp; collectors · +50 pts per win</div>
+        </div>
+      </div>
+      <p class="qcard-desc">Test your philatelic knowledge! Answer correctly to earn points and unlock rare stamp discounts.</p>
+      <div class="q-num" id="qNum">QUESTION 1 OF 5</div>
+      <div class="q-text" id="qText">Loading...</div>
+      <div class="q-opts" id="qOpts"></div>
+      <div class="q-result" id="qResult"></div>
+      <button class="q-next" id="qNext" onclick="nextQ()">Next Question &rarr;</button>
+    </div>
+
+    <!-- RUNNER -->
+    <div class="runner-card">
+      <div class="rcard-hd">
+        <div class="rcard-ico">🏃</div>
+        <div>
+          <div class="rcard-title">Stamp Runner</div>
+          <div class="rcard-sub">For kids &amp; youngsters · Infinite runner</div>
+        </div>
+      </div>
+      <p class="rcard-desc">Run across India collecting rare stamps! Jump over obstacles &amp; earn coins. The faster you run, the more stamps you collect!</p>
+      <div class="r-score-row">
+        <div class="r-score"><span id="rScore">0</span> <small>pts</small></div>
+        <div class="r-best">Best: <span id="rBest">0</span></div>
+      </div>
+      <div class="r-canvas-wrap">
+        <canvas id="runnerCanvas"></canvas>
+        <div class="r-overlay" id="rOverlay">
+          <div style="font-size:30px">🏃‍♂️</div>
+          <div style="font-weight:700;font-size:15px">Stamp Runner!</div>
+          <div style="font-size:12.5px;color:rgba(255,255,255,0.6);margin-bottom:4px">Collect stamps, avoid obstacles</div>
+          <button class="r-start" onclick="startGame()">▶ Start Game</button>
+        </div>
+      </div>
+      <button class="r-jump" onclick="doJump()">⬆ JUMP &nbsp;(Space / Tap)</button>
+    </div>
+
+    <!-- POINTS PANEL -->
+    <div class="pts-panel">
+      <div>
+        <div class="pts-big" id="ptsBig">1,300</div>
+        <div class="pts-lbl">Total Points Earned</div>
+        <div class="lvl-row"><span>Level 4 — Collector</span><span>1,750 for Level 5</span></div>
+        <div class="lvl-bar"><div class="lvl-fill" id="lvlFill" style="width:74%"></div></div>
+        <div class="pts-stats">
+          <div class="pts-stat"><div class="pts-stat-n" id="qWins">28</div><div class="pts-stat-l">Quiz Wins</div></div>
+          <div class="pts-stat"><div class="pts-stat-n">₹180</div><div class="pts-stat-l">Redeemed</div></div>
+          <div class="pts-stat"><div class="pts-stat-n" id="rBestPts">0</div><div class="pts-stat-l">Best Run</div></div>
+          <div class="pts-stat"><div class="pts-stat-n">47</div><div class="pts-stat-l">Stamps Owned</div></div>
+        </div>
+      </div>
+      <div class="lb">
+        <div class="lb-hd">🏆 Leaderboard — This Week</div>
+        <div class="lb-row"><div class="lb-rank">🥇</div><div class="lb-name">Ramesh K. · Jaipur</div><div class="lb-pts">4,200</div></div>
+        <div class="lb-row"><div class="lb-rank">🥈</div><div class="lb-name">Priya M. · Mumbai</div><div class="lb-pts">3,850</div></div>
+        <div class="lb-row"><div class="lb-rank">🥉</div><div class="lb-name">You</div><div class="lb-pts" id="myPts">1,300</div></div>
+        <div class="lb-row"><div class="lb-rank">4️⃣</div><div class="lb-name">Ahmed R. · Lucknow</div><div class="lb-pts">980</div></div>
+        <div class="lb-row"><div class="lb-rank">5️⃣</div><div class="lb-name">Sunita B. · Pune</div><div class="lb-pts">760</div></div>
+      </div>
+      <div class="earn-list">
+        <div style="font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fdd835;margin-bottom:10px">HOW TO EARN</div>
+        <div class="earn-item"><span>🎯</span><div><h5>Daily Quiz</h5><p>+50 pts per correct answer</p></div></div>
+        <div class="earn-item"><span>🏃</span><div><h5>Stamp Runner</h5><p>+1 pt per stamp collected</p></div></div>
+        <div class="earn-item"><span>🛒</span><div><h5>Purchase Stamps</h5><p>+100 pts per order</p></div></div>
+        <div class="earn-item"><span>👥</span><div><h5>Refer a Friend</h5><p>+200 pts per referral</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COMMUNITY ===== -->
+<section class="sec-wrap community-bg" id="community">
+  <div class="sec-hd">
+    <div class="sec-title"><span class="sec-eye">Connect Across India</span>Philatelist Community</div>
+    <a href="#" class="view-all">View All &rarr;</a>
+  </div>
+  <div class="forum-grid">
+    <div class="forum-card"><span class="ftag ftag-d">Discussion</span><div class="f-title">Best way to preserve 1947 British India stamps — dry or humidity storage?</div><div class="f-meta"><span>👤 Ramesh K.</span><span>💬 24 replies</span><span>❤️ 47</span></div></div>
+    <div class="forum-card"><span class="ftag ftag-n">News</span><div class="f-title">India Post announces Chandrayaan-3 commemorative series — collector's edition!</div><div class="f-meta"><span>👤 Admin</span><span>💬 58 replies</span><span>❤️ 132</span></div></div>
+    <div class="forum-card"><span class="ftag ftag-s">For Sale</span><div class="f-title">Selling complete 1948 Gandhi mint condition series — very rare OG gum intact</div><div class="f-meta"><span>👤 Vikram S.</span><span>💬 11 replies</span><span>💰 ₹8,500</span></div></div>
+    <div class="forum-card"><span class="ftag ftag-r">Rare Find</span><div class="f-title">Found 1854 East India 4 Anna Blue — how to authenticate and get it valued?</div><div class="f-meta"><span>👤 Anjali M.</span><span>💬 36 replies</span><span>❤️ 89</span></div></div>
+  </div>
+</section>
+
+<!-- ===== PAYMENT MODAL ===== -->
+<div class="modal-bg" id="payModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closePayment()">×</button>
+    <div class="modal-title">💳 Secure Payment</div>
+    <div class="modal-sub">Wallet: <strong>₹1,500</strong> · Order Total: <strong>₹950</strong> · You save ₹250</div>
+    <div class="pay-tabs">
+      <button class="ptab on" onclick="setTab(this,'upi')">📱 UPI</button>
+      <button class="ptab" onclick="setTab(this,'card')">💳 Card</button>
+      <button class="ptab" onclick="setTab(this,'net')">🏦 Net Banking</button>
+      <button class="ptab" onclick="setTab(this,'wallet')">👛 Wallet</button>
+    </div>
+    <div id="pane-upi">
+      <div style="font-size:12.5px;font-weight:700;color:#5d7a5e;letter-spacing:0.8px;margin-bottom:9px">SELECT UPI APP</div>
+      <div class="upi-grid">
+        <div class="upi-opt" onclick="selUpi(this)"><span class="upi-ico">🟢</span>Google Pay</div>
+        <div class="upi-opt" onclick="selUpi(this)"><span class="upi-ico">🔵</span>PhonePe</div>
+        <div class="upi-opt" onclick="selUpi(this)"><span class="upi-ico">🟣</span>Paytm</div>
+        <div class="upi-opt" onclick="selUpi(this)"><span class="upi-ico">🔴</span>BHIM UPI</div>
+        <div class="upi-opt" onclick="selUpi(this)"><span class="upi-ico">🟠</span>Amazon Pay</div>
+        <div class="upi-opt" onclick="selUpi(this)"><span class="upi-ico">🔵</span>Airtel Pay</div>
+      </div>
+      <div style="font-size:12.5px;font-weight:600;color:#5d7a5e;margin-bottom:7px">OR ENTER UPI ID</div>
+      <input class="p-inp" type="text" placeholder="yourname@upi">
+    </div>
+    <div id="pane-card" style="display:none">
+      <input class="p-inp" type="text" placeholder="Card Number (16 digits)" maxlength="19">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+        <input class="p-inp" type="text" placeholder="MM / YY">
+        <input class="p-inp" type="text" placeholder="CVV" maxlength="3">
+      </div>
+      <input class="p-inp" type="text" placeholder="Cardholder Name">
+    </div>
+    <div id="pane-net" style="display:none">
+      <div class="upi-grid">
+        <div class="upi-opt" onclick="selUpi(this)"><span class="upi-ico">🏦</span>SBI</div>
+        <div class="upi-opt" onclick="selUpi(this)"><span class="upi-ico">🏦</span>HDFC</div>
+        <div class="upi-opt" onclick="selUpi(this)"><span class="upi-ico">🏦</span>ICICI</div>
+        <div class="upi-opt" onclick="selUpi(this)"><span class="upi-ico">🏦</span>Axis Bank</div>
+        <div class="upi-opt" onclick="selUpi(this)"><span class="upi-ico">🏦</span>Kotak</div>
+        <div class="upi-opt" onclick="selUpi(this)"><span class="upi-ico">🏦</span>PNB</div>
+      </div>
+    </div>
+    <div id="pane-wallet" style="display:none">
+      <div style="background:linear-gradient(135deg,#388e3c,#66bb6a);border-radius:13px;padding:18px;color:#fff;margin-bottom:11px">
+        <div style="font-size:12px;opacity:0.7;margin-bottom:3px">StampCollector Wallet</div>
+        <div style="font-size:34px;font-weight:800">₹1,500</div>
+        <div style="font-size:12px;opacity:0.7;margin-top:3px">Available Balance</div>
+      </div>
+      <div style="font-size:13.5px;color:#5d7a5e">₹950 will be deducted. Remaining: <strong>₹550</strong></div>
+    </div>
+    <div class="sec-badge">🔒 Secured by Razorpay · 256-bit SSL · PCI DSS Compliant</div>
+    <button class="pay-btn" onclick="doPay()">✅ Pay ₹950 Securely</button>
+  </div>
+</div>
+
+<!-- ===== CAMERA MODAL ===== -->
+<div class="modal-bg" id="camModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeCam()">×</button>
+    <div class="modal-title">📷 AI Stamp Identifier</div>
+    <div class="modal-sub">Point your camera at any stamp — AI identifies it instantly.</div>
+    <div class="cam-viewport">
+      <div class="scan-box"><div class="scan-laser"></div></div>
+      <div class="cam-hint">Scanning for stamp…</div>
+    </div>
+    <div class="cam-btn-row">
+      <button class="cam-capture" onclick="doScan()">📸 Capture &amp; Identify</button>
+      <button class="cam-upload" onclick="toast('📁 Upload from gallery')">📁 Upload</button>
+    </div>
+    <div class="ai-result" id="aiResult">
+      <div class="ai-result-name">🔍 Identified: Mahatma Gandhi ₹10 Stamp (1948, India)</div>
+      <div class="ai-result-det">Country: India · Year: 1948 · Face value: ₹10 · Colour: Green<br>First commemorative stamp of independent India. Mint condition value: ₹600–₹950. <strong style="color:#2e7d32">AI Confidence: 97.3%</strong></div>
+      <div style="display:flex;gap:7px;margin-top:9px">
+        <button onclick="toast('🛒 Added to cart!');closeCam()" style="flex:1;padding:8px;background:linear-gradient(135deg,#388e3c,#66bb6a);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">Add to Cart ₹950</button>
+        <button onclick="toast('♡ Saved to wishlist!')" style="padding:8px 13px;background:#fffde7;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px">♡ Wishlist</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CHATBOT ===== -->
+<button class="chat-btn" onclick="toggleChat()"><span class="chat-bounce">🤖</span></button>
+<div class="chat-window" id="chatWindow">
+  <div class="chat-hd">
+    <div class="chat-av">🤖</div>
+    <div>
+      <div class="chat-hd-name">StampBot Assistant</div>
+      <div class="chat-hd-sub">Powered by AI · Philately Expert</div>
+    </div>
+    <div class="chat-online"><div class="cdot"></div>Online</div>
+    <button class="chat-close" onclick="toggleChat()">×</button>
+  </div>
+  <div class="chat-msgs" id="chatMsgs">
+    <div class="cmsg bot">Namaste! 🙏 I'm StampBot, your 24/7 philately assistant.</div>
+    <div class="cmsg bot">Ask me about stamps, orders, auctions, payments — anything!</div>
+  </div>
+  <div class="chat-quick">
+    <button class="cqbtn" onclick="sendQ('Track my order')">📦 Track</button>
+    <button class="cqbtn" onclick="sendQ('Show rare stamps')">🏷️ Rare Stamps</button>
+    <button class="cqbtn" onclick="sendQ('How to bid')">🔨 Bidding</button>
+    <button class="cqbtn" onclick="sendQ('Contact support')">📞 Support</button>
+  </div>
+  <div class="chat-inp-row">
+    <input class="chat-inp" id="chatInp" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer-wrap" id="footer-sec">
+  <div class="footer-grid">
+    <div>
+      <div class="f-brand-name">📮 Stamp<span>Collector</span></div>
+      <p class="f-desc">India's National Web Community of Philatelists — connecting collectors from every corner of the country. Buy, sell, track, learn and celebrate the art of stamp collecting.</p>
+      <div class="f-contacts">
+        <a href="tel:8602826567">📞 +91 86028 26567</a>
+        <a href="/cdn-cgi/l/email-protection#2a595f5a5a45585e6a595e4b475a494546464f495e4558044344">✉️ <span class="__cf_email__" data-cfemail="1a696f6a6a75686e5a696e7b776a797576767f796e7568347374">[email&#160;protected]</span></a>
+        <a href="#">📍 India Post HQ, New Delhi — 110001</a>
+      </div>
+    </div>
+    <div>
+      <div class="f-hdg">Explore</div>
+      <ul class="f-links">
+        <li><a href="#stamps">Featured Stamps</a></li>
+        <li><a href="#auctions">Live Auctions</a></li>
+        <li><a href="#news-sec">Stamp Blog</a></li>
+        <li><a href="#">New Releases</a></li>
+        <li><a href="#">Rare &amp; Vintage</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="f-hdg">Community</div>
+      <ul class="f-links">
+        <li><a href="#community">Forum</a></li>
+        <li><a href="#games">Quiz Game</a></li>
+        <li><a href="#games">Stamp Runner</a></li>
+        <li><a href="#games">Leaderboard</a></li>
+        <li><a href="#">Events &amp; Meets</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="f-hdg">Services</div>
+      <ul class="f-links">
+        <li><a href="#track-sec">Track Order</a></li>
+        <li><a href="#" onclick="openPayment();return false">Wallet &amp; Payments</a></li>
+        <li><a href="#" onclick="openCamera();return false">AI Stamp Identifier</a></li>
+        <li><a href="#">Shiprocket Logistics</a></li>
+        <li><a href="#">Authentication &amp; QR</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2024 StampCollector · India's National Philately Platform</div>
+    <div>🇮🇳 Made with ❤️ in India</div>
+  </div>
+</footer>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ── NAVBAR SCROLL ── */
+window.addEventListener('scroll', function() {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+/* ── TOAST ── */
+var toastTimer = null;
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2800);
+}
+
+/* ── HERO DECO STAMPS ── */
+var DECO = [
+  {e:'👤',bg:'#fef3c7',l:'Gandhi'},
+  {e:'🚀',bg:'#dbeafe',l:'Apollo'},
+  {e:'🏛️',bg:'#fee2e2',l:'India 47'},
+  {e:'✉️',bg:'#f0fdf4',l:'Penny'},
+  {e:'🌙',bg:'#ede9fe',l:'Chandrayaan'},
+  {e:'🦁',bg:'#ecfdf5',l:'Wildlife'},
+  {e:'🏔️',bg:'#f0f9ff',l:'Himalayas'},
+  {e:'🌸',bg:'#fff1f2',l:'Flora'},
+  {e:'🎭',bg:'#fdf4ff',l:'Festivals'},
+];
+(function() {
+  var w = document.getElementById('heroDeco');
+  if (!w) return;
+  DECO.forEach(function(s) {
+    w.innerHTML += '<div class="deco-stamp">' +
+      '<div class="deco-stamp-inner" style="background:' + s.bg + '">' + s.e + '</div>' +
+      '<div class="deco-stamp-label">' + s.l + '</div>' +
+    '</div>';
+  });
+})();
+
+/* ── STAMPS ── */
+var STAMPS = [
+  {e:'👤',bg:'#fef3c7',name:'Mahatma Gandhi 1948',price:'₹950',orig:'₹1,200',yr:'1948',badge:'RARE',bc:'badge-r'},
+  {e:'🚀',bg:'#dbeafe',name:'Apollo 11 Moon Landing',price:'₹800',orig:'',yr:'1969',badge:'',bc:''},
+  {e:'🏛️',bg:'#fee2e2',name:'British India 1947',price:'₹1,200',orig:'₹1,500',yr:'1947',badge:'RARE',bc:'badge-r'},
+  {e:'✉️',bg:'#f0fdf4',name:'Penny Black 1840 UK',price:'₹2,500',orig:'',yr:'1840',badge:'RARE',bc:'badge-r'},
+  {e:'🌙',bg:'#ede9fe',name:'Chandrayaan-3 2023',price:'₹250',orig:'',yr:'2023',badge:'NEW',bc:'badge-n'},
+  {e:'🎭',bg:'#fdf4ff',name:'Indian Festivals Series',price:'₹180',orig:'₹220',yr:'2022',badge:'NEW',bc:'badge-n'},
+  {e:'🦁',bg:'#ecfdf5',name:'Wildlife of India 1963',price:'₹650',orig:'',yr:'1963',badge:'HOT',bc:'badge-h'},
+  {e:'🏔️',bg:'#f0f9ff',name:'Himalayas Panorama',price:'₹420',orig:'₹500',yr:'2000',badge:'',bc:''},
+];
+(function() {
+  var g = document.getElementById('stampsGrid');
+  STAMPS.forEach(function(s) {
+    g.innerHTML += '<div class="s-card">' +
+      '<div class="s-card-img" style="background:' + s.bg + '">' +
+        '<div class="s-thumb"><span>' + s.e + '</span><span class="s-yr">' + s.yr + '</span></div>' +
+        (s.badge ? '<div class="s-badge ' + s.bc + '">' + s.badge + '</div>' : '') +
+      '</div>' +
+      '<div class="s-body"><div class="s-name">' + s.name + '</div>' +
+      '<div class="s-price">' + s.price + (s.orig ? '<del>' + s.orig + '</del>' : '') + '</div></div>' +
+      '<div class="s-actions">' +
+        '<button class="s-add" onclick="addCart(\'' + s.name.replace(/'/g,"\\'") + '\')">🛒 Add to Cart</button>' +
+        '<button class="s-wish" onclick="toast(\'♡ Added to Wishlist!\')">♡</button>' +
+      '</div></div>';
+  });
+})();
+
+function addCart(n) { toast('🛒 "' + n + '" added to cart! +10 pts'); addPts(10); }
+
+/* ── AUCTIONS ── */
+var AUCTIONS = [
+  {e:'✈️',name:'Rare Inverted Jenny',bid:3000,t:399,yr:'1918'},
+  {e:'🎈',name:'Vintage Zeppelin Stamp',bid:4500,t:730,yr:'1936'},
+  {e:'👑',name:'King George V 1910',bid:7200,t:9000,yr:'1910'},
+];
+(function() {
+  var l = document.getElementById('auctionList');
+  AUCTIONS.forEach(function(a, i) {
+    l.innerHTML += '<div class="a-card">' +
+      '<div class="a-thumb"><span>' + a.e + '</span><span style="font-size:8px;color:#888;font-family:Playfair Display,serif">' + a.yr + '</span></div>' +
+      '<div style="flex:1">' +
+        '<div class="a-name">' + a.name + '</div>' +
+        '<div class="a-bid">₹' + a.bid.toLocaleString('en-IN') + ' <small>Current bid</small></div>' +
+        '<div class="a-timer"><span class="ldot">●</span> ⏱ <span id="at' + i + '">' + fmtT(a.t) + '</span> Left</div>' +
+      '</div>' +
+      '<button class="bid-now" onclick="doBid(' + i + ')">BID NOW</button>' +
+    '</div>';
+  });
+  setInterval(function() {
+    AUCTIONS.forEach(function(a, i) {
+      if (a.t > 0) { a.t--; var el = document.getElementById('at' + i); if (el) el.textContent = fmtT(a.t); }
+    });
+  }, 1000);
+})();
+
+function fmtT(s) {
+  if (s >= 3600) { return Math.floor(s/3600) + 'h ' + Math.floor((s%3600)/60) + 'm'; }
+  return Math.floor(s/60) + 'm ' + String(s%60).padStart(2,'0') + 's';
+}
+function doBid(i) {
+  AUCTIONS[i].bid += 100;
+  var el = document.querySelectorAll('.a-bid')[i];
+  if (el) el.innerHTML = '₹' + AUCTIONS[i].bid.toLocaleString('en-IN') + ' <small>Current bid</small>';
+  toast('🔨 Bid placed! +50 pts'); addPts(50);
+}
+
+/* ── TRACKING ── */
+function doTrack() {
+  var v = document.getElementById('trInp').value.trim();
+  if (!v) { toast('⚠️ Please enter an Order ID'); return; }
+  toast('🔍 Looking up order…');
+  setTimeout(function() {
+    document.getElementById('trResult').classList.add('show');
+    toast('✅ Order found! See details below.');
+  }, 1200);
+}
+
+/* ── NEWS ── */
+(function() {
+  var TICK = '🆕 Chandrayaan-3 stamp series — ₹25 | 📣 India Post Diwali 2024 special | 🏅 Rare 1854 East India 4 Anna sold ₹2,40,000 | 📅 Philatelist Meet Mumbai Mar 15 | 🌍 India joins UPU digital archive | ';
+  document.getElementById('tickerTxt').textContent = TICK + TICK;
+
+  var NEWS = [
+    {e:'🚀',bg:'linear-gradient(135deg,#1e3a5f,#1d4ed8)',tag:'New Release',tc:'rgba(29,78,216,0.1)',tcc:'#1d4ed8',title:"Chandrayaan-3 Stamp Available Now!",date:'March 1, 2024'},
+    {e:'📜',bg:'linear-gradient(135deg,#78350f,#b45309)',tag:'History',tc:'rgba(180,83,9,0.1)',tcc:'#b45309',title:"Story Behind India's 1947 Independence Stamp",date:'Feb 28, 2024'},
+    {e:'💎',bg:'linear-gradient(135deg,#0f766e,#0d9488)',tag:'Auction',tc:'rgba(13,115,119,0.1)',tcc:'#0f766e',title:'1854 East India 4 Anna Blue — Record ₹2.4L',date:'Feb 25, 2024'},
+  ];
+  var g = document.getElementById('newsGrid');
+  NEWS.forEach(function(u) {
+    g.innerHTML += '<div class="news-card">' +
+      '<div class="news-img" style="background:' + u.bg + '">' + u.e + '</div>' +
+      '<div class="news-body">' +
+        '<span class="news-tag" style="background:' + u.tc + ';color:' + u.tcc + '">' + u.tag + '</span>' +
+        '<div class="news-title">' + u.title + '</div>' +
+        '<div class="news-date">📅 ' + u.date + '</div>' +
+      '</div></div>';
+  });
+
+  // Waveform bars
+  var wf = document.getElementById('apWaves');
+  var hs = [6,12,18,24,28,24,20,14,8,20,26,22,16,10,6,18,24,20,12,8,14,22,28,24,16];
+  hs.forEach(function(h, i) {
+    var b = document.createElement('div');
+    b.className = 'ap-bar';
+    b.style.cssText = '--wd:' + (0.4 + Math.random()*0.5) + 's;--dl:' + (i*0.04) + 's;--h:' + h + 'px';
+    wf.appendChild(b);
+  });
+})();
+
+/* ── AUDIO BLOG ── */
+var apPlaying = false, apTimer = null, apSecs = 0, apTotal = 332;
+function toggleAudio() {
+  apPlaying = !apPlaying;
+  document.getElementById('apPlay').textContent = apPlaying ? '⏸' : '▶';
+  document.getElementById('apSub').textContent = apPlaying ? '▶ Now Playing…' : 'Paused · Tap to resume';
+  if (apPlaying) {
+    apTimer = setInterval(function() {
+      apSecs = Math.min(apSecs + 1, apTotal);
+      var pct = (apSecs / apTotal) * 100;
+      document.getElementById('apFill').style.width = pct + '%';
+      var m = Math.floor(apSecs/60), s = apSecs % 60;
+      var tm = Math.floor(apTotal/60), ts = apTotal % 60;
+      document.getElementById('apTime').textContent = m + ':' + String(s).padStart(2,'0') + ' / ' + tm + ':' + String(ts).padStart(2,'0');
+      if (apSecs >= apTotal) { clearInterval(apTimer); apPlaying = false; document.getElementById('apPlay').textContent = '▶'; }
+    }, 1000);
+  } else {
+    clearInterval(apTimer);
+  }
+}
+
+/* ── QUIZ ── */
+var QS = [
+  {q:'Which was the first stamp issued in independent India?', opts:['Mahatma Gandhi 1948','Taj Mahal 1949','Jai Hind 1947','Flag Hoisting 1950'], ans:2},
+  {q:"What is the world's first adhesive postage stamp called?", opts:['Red Penny','Penny Black','Blue Mauritius','Indian Head'], ans:1},
+  {q:'In which year did India Post issue the Chandrayaan-3 commemorative stamp?', opts:['2021','2022','2023','2024'], ans:2},
+  {q:'The "Inverted Jenny" stamp is famous because:', opts:['Spelling error','The airplane is printed upside down','Never released','Has gold printing'], ans:1},
+  {q:'Which organisation oversees global postal standards?', opts:['UNESCO','WTO','UPU','WHO'], ans:2},
+];
+var qIdx = 0, qDone = false, totalPts = 1300;
+function loadQ() {
+  qDone = false;
+  var Q = QS[qIdx];
+  document.getElementById('qNum').textContent = 'QUESTION ' + (qIdx+1) + ' OF ' + QS.length;
+  document.getElementById('qText').textContent = Q.q;
+  document.getElementById('qNext').style.display = 'none';
+  var res = document.getElementById('qResult');
+  res.className = 'q-result';
+  var opts = document.getElementById('qOpts');
+  opts.innerHTML = '';
+  Q.opts.forEach(function(o, i) {
+    var b = document.createElement('button');
+    b.className = 'q-opt';
+    b.textContent = String.fromCharCode(65+i) + '. ' + o;
+    b.onclick = function() { ansQ(i, Q.ans, b); };
+    opts.appendChild(b);
+  });
+}
+function ansQ(sel, ans, btn) {
+  if (qDone) return;
+  qDone = true;
+  document.querySelectorAll('.q-opt').forEach(function(b) { b.disabled = true; });
+  var res = document.getElementById('qResult');
+  if (sel === ans) {
+    btn.classList.add('correct');
+    res.textContent = '✅ Correct! +50 points earned!';
+    res.className = 'q-result show ok';
+    addPts(50);
+    document.getElementById('qWins').textContent = parseInt(document.getElementById('qWins').textContent) + 1;
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.q-opt')[ans].classList.add('correct');
+    res.textContent = '❌ Wrong! Correct answer highlighted above.';
+    res.className = 'q-result show bad';
+  }
+  document.getElementById('qNext').style.display = 'block';
+}
+function nextQ() { qIdx = (qIdx + 1) % QS.length; loadQ(); }
+loadQ();
+
+/* ── POINTS ── */
+function addPts(n) {
+  totalPts += n;
+  document.getElementById('ptsBig').textContent = totalPts.toLocaleString('en-IN');
+  document.getElementById('myPts').textContent = totalPts.toLocaleString('en-IN');
+  var pct = Math.min(99, (totalPts - 1000) / 750 * 100);
+  document.getElementById('lvlFill').style.width = pct + '%';
+}
+
+/* ── RUNNER GAME ── */
+var rActive = false, rScore = 0, rBest = 0;
+var rRAF = null, rX = 55, rY = 0, rVY = 0, rGround = 0;
+var rObs = [], rStamps = [], rSpeed = 3.2, rFrame = 0;
+var GRAV = 0.5, JUMP = -10.5, RW = 22, RH = 34;
+var rCvs = null, rCtx = null;
+
+function initCanvas() {
+  rCvs = document.getElementById('runnerCanvas');
+  rCtx = rCvs.getContext('2d');
+  rCvs.width = rCvs.offsetWidth || 480;
+  rCvs.height = rCvs.offsetHeight || 175;
+  rGround = rCvs.height * 0.6 - RH;
+}
+
+function startGame() {
+  if (!rCtx) initCanvas();
+  rActive = true; rScore = 0; rFrame = 0; rSpeed = 3.2;
+  rX = 55; rY = rGround; rVY = 0;
+  rObs = []; rStamps = [];
+  document.getElementById('rOverlay').classList.add('hide');
+  document.getElementById('rScore').textContent = '0';
+  if (rRAF) cancelAnimationFrame(rRAF);
+  gameLoop();
+  document.addEventListener('keydown', onSpaceKey);
+}
+function onSpaceKey(e) {
+  if (e.code === 'Space' || e.key === ' ') { e.preventDefault(); doJump(); }
+}
+function doJump() {
+  if (!rActive) return;
+  if (rY >= rGround - 2) rVY = JUMP;
+}
+
+function gameLoop() {
+  if (!rActive) return;
+  rRAF = requestAnimationFrame(gameLoop);
+  var c = rCtx, W = rCvs.width, H = rCvs.height;
+  var gY = Math.floor(H * 0.6);
+
+  // Sky
+  var sk = c.createLinearGradient(0,0,0,gY);
+  sk.addColorStop(0,'#071428'); sk.addColorStop(1,'#122d5a');
+  c.fillStyle = sk; c.fillRect(0,0,W,gY);
+
+  // Ground
+  var gr = c.createLinearGradient(0,gY,0,H);
+  gr.addColorStop(0,'#7a4a0a'); gr.addColorStop(1,'#4a2c07');
+  c.fillStyle = gr; c.fillRect(0,gY,W,H-gY);
+
+  c.strokeStyle = 'rgba(255,255,255,0.06)'; c.lineWidth = 1;
+  c.beginPath(); c.moveTo(0,gY); c.lineTo(W,gY); c.stroke();
+
+  // Stars
+  c.fillStyle = 'rgba(255,255,255,0.5)';
+  for (var s=0; s<6; s++) {
+    c.beginPath();
+    c.arc((rFrame*0.4 + s*90) % W, 8 + s*4, 1, 0, Math.PI*2);
+    c.fill();
+  }
+
+  rFrame++; rSpeed += 0.002;
+  rScore = Math.floor(rFrame / 5);
+  document.getElementById('rScore').textContent = rScore;
+
+  // Spawn obstacles
+  if (rFrame % Math.max(40, Math.floor(180 / rSpeed)) === 0) {
+    rObs.push({x: W, w: 16, h: 22 + Math.random()*18});
+  }
+  // Spawn stamps
+  if (rFrame % 55 === 0) {
+    rStamps.push({x: W, y: gY - RH - 25 - Math.random()*35, done: false});
+  }
+
+  // Obstacles
+  rObs = rObs.filter(function(o) { return o.x > -20; });
+  rObs.forEach(function(o) {
+    o.x -= rSpeed;
+    c.fillStyle = '#dc2626'; c.fillRect(o.x, gY - o.h, o.w, o.h);
+    c.fillStyle = '#b91c1c'; c.fillRect(o.x - 2, gY - o.h - 8, o.w + 4, 10);
+  });
+
+  // Stamps
+  rStamps = rStamps.filter(function(st) { return st.x > -20; });
+  rStamps.forEach(function(st) {
+    st.x -= rSpeed;
+    if (!st.done) { c.font = '16px serif'; c.fillText('📮', st.x, st.y); }
+  });
+
+  // Physics
+  rVY += GRAV; rY += rVY;
+  if (rY >= rGround) { rY = rGround; rVY = 0; }
+
+  // Draw runner
+  c.font = '26px serif';
+  c.fillText('🏃', rX - 10, gY - RH + (rY - rGround));
+
+  // Score
+  c.fillStyle = 'rgba(255,255,255,0.7)';
+  c.font = 'bold 12px Nunito,sans-serif';
+  c.fillText('SCORE: ' + rScore, W - 100, 18);
+
+  // Collision
+  var rx = rX - 8, ry = gY - RH + (rY - rGround);
+  for (var i = 0; i < rObs.length; i++) {
+    var o = rObs[i];
+    if (rx + RW > o.x + 3 && rx < o.x + o.w - 3 && ry + RH > gY - o.h + 4) {
+      endGame(); return;
+    }
+  }
+
+  // Collect stamps
+  rStamps.forEach(function(st) {
+    if (!st.done && Math.abs(rx - st.x) < 22 && Math.abs(ry - st.y) < 26) {
+      st.done = true; addPts(1); rScore += 5;
+    }
+  });
+}
+
+function endGame() {
+  rActive = false;
+  cancelAnimationFrame(rRAF);
+  document.removeEventListener('keydown', onSpaceKey);
+  if (rScore > rBest) {
+    rBest = rScore;
+    document.getElementById('rBest').textContent = rBest;
+    document.getElementById('rBestPts').textContent = rBest;
+  }
+  var ov = document.getElementById('rOverlay');
+  ov.innerHTML = '<div style="font-size:28px">💥</div>' +
+    '<div style="font-weight:700;font-size:15px;color:#fff">Game Over!</div>' +
+    '<div style="font-size:12px;color:rgba(255,255,255,0.65)">Score: ' + rScore + ' · Best: ' + rBest + '</div>' +
+    '<button class="r-start" onclick="startGame()" style="margin-top:6px">▶ Play Again</button>';
+  ov.classList.remove('hide');
+  toast('🏃 Score: ' + rScore + ' pts!');
+}
+
+/* ── PAYMENT ── */
+function openPayment() { document.getElementById('payModal').classList.add('open'); }
+function closePayment() { document.getElementById('payModal').classList.remove('open'); }
+function setTab(el, pane) {
+  document.querySelectorAll('.ptab').forEach(function(t) { t.classList.remove('on'); });
+  el.classList.add('on');
+  ['upi','card','net','wallet'].forEach(function(p) {
+    var pe = document.getElementById('pane-' + p);
+    if (pe) pe.style.display = p === pane ? 'block' : 'none';
+  });
+}
+function selUpi(el) {
+  document.querySelectorAll('.upi-opt').forEach(function(o) { o.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+function doPay() { closePayment(); toast('✅ Payment ₹950 successful! +100 pts!'); addPts(100); }
+
+/* ── CAMERA ── */
+function openCamera() { document.getElementById('camModal').classList.add('open'); }
+function closeCam() {
+  document.getElementById('camModal').classList.remove('open');
+  document.getElementById('aiResult').classList.remove('show');
+}
+function doScan() {
+  toast('🤖 AI scanning stamp…');
+  setTimeout(function() { document.getElementById('aiResult').classList.add('show'); }, 1300);
+}
+
+/* ── CHATBOT ── */
+var BOT_R = {
+  'track': 'Your order #SC-2024-8821 is in transit at Bhopal Hub, expected tomorrow! 📦',
+  'rare': 'Top rare stamps: 1947 British India ₹1,200, Penny Black 1840 ₹2,500, Inverted Jenny (live auction!). 🏷️',
+  'bid': 'Go to Live Auctions → click BID NOW → confirm. You earn 50 pts per bid! 🔨',
+  'payment': 'We support UPI (GPay, PhonePe, Paytm, BHIM), Cards, Net Banking (SBI,HDFC,ICICI) & Wallet. Secured by Razorpay. 💳',
+  'quiz': 'Play Daily Stamp Quiz — 5 questions, +50 pts per correct answer! Go to Games section. 🎯',
+  'game': '2 games: Daily Quiz (adults) & Stamp Runner (kids). Both earn points! 🏃',
+  'contact': '📞 +91 86028 26567 · ✉️ support@stampcollector.in · Reply in 2 hours!',
+  'support': '📞 +91 86028 26567 · ✉️ support@stampcollector.in · Reply in 2 hours!',
+  'default': 'Great question! I can help with stamps, orders, auctions, payments, games and more. 😊'
+};
+function toggleChat() { document.getElementById('chatWindow').classList.toggle('open'); }
+function sendQ(msg) {
+  addMsg(msg, 'usr');
+  var k = Object.keys(BOT_R).find(function(k) { return msg.toLowerCase().indexOf(k) !== -1; }) || 'default';
+  setTimeout(function() { addMsg(BOT_R[k], 'bot'); }, 650);
+}
+function sendChat() {
+  var inp = document.getElementById('chatInp');
+  var msg = inp.value.trim(); if (!msg) return; inp.value = '';
+  addMsg(msg, 'usr');
+  var k = Object.keys(BOT_R).find(function(k) { return msg.toLowerCase().indexOf(k) !== -1; }) || 'default';
+  setTimeout(function() { addMsg(BOT_R[k], 'bot'); }, 700);
+}
+function addMsg(txt, type) {
+  var m = document.getElementById('chatMsgs');
+  var d = document.createElement('div');
+  d.className = 'cmsg ' + type; d.textContent = txt;
+  m.appendChild(d); m.scrollTop = m.scrollHeight;
+}
+
+/* ── Close modals on bg click ── */
+docum
